@@ -9,7 +9,7 @@ if os.environ['ENVIRONMENT'].upper() =="TEST":
     user_table = "localzi-user-interestcards"
     recommender_table ="localzi-places-recommended-test"
     user = "u1"
-elif os.environ['ENVIRONMENT']=="PRODUCTION":
+elif os.environ['ENVIRONMENT'].upper() =="PRODUCTION":
     place_table = "localzi-place-rating"
     user_table = "localzi-user-interestcards"
     recommender_table = "places-recommended"
