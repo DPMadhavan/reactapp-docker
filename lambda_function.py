@@ -4,7 +4,7 @@ import boto3
 import os
 import logging
 
-if os.environ['ENVIRONMENT']=="TEST":
+if os.environ['ENVIRONMENT'].upper() =="TEST":
     place_table = "localzi-place-rating"
     user_table = "localzi-user-interestcards"
     recommender_table ="localzi-places-recommended-test"
