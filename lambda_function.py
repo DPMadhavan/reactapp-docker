@@ -1,79 +1,54 @@
-import json
+from recommender import *
 import pandas as pd
-import numpy as np
 import boto3
-from boto3.dynamodb.conditions import Key
-import operator
+import os
+import logging
+
+if os.environ['ENVIRONMENT']=="TEST":
+    place_table = "localzi-place-rating"
+    user_table = "localzi-user-interestcards"
+    recommender_table ="localzi-places-recommended-test"
+    user = "u1"
+elif os.environ['ENVIRONMENT']=="PRODUCTION":
+    place_table = "localzi-place-rating"
+    user_table = "localzi-user-interestcards"
+    recommender_table = "places-recommended"
+    user = "u1"
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+
+db=boto3.resource('dynamodb')
+
+try:
+    place_category_rating=db.Table(place_table)
+except Exception as e:
+    logger.error(e)
+response = place_category_rating.scan()
+
 def lambda_handler(event=None, context=None):
-    db=boto3.resource('dynamodb')
-    user_interest_cards=db.Table('localzi-user-interestcards')
-    place_category_rating=db.Table('localzi-place-rating')
-    #-----fetching user details
-    #val='u1'
-    response = user_interest_cards.scan()
-    UserID=[]
-    CategoryID=[]
-    Rating=[]
-    for user in response['Items']:
-        UserID.append(user['UserID'])
-        CategoryID.append(user['CategoryID'])
-        Rating.append(user['Rating'])
-    userdf=pd.DataFrame(list(zip(UserID,CategoryID,Rating)), columns =['UserID', 'CategoryID','Rating'])
-    #when group by has to be done?
-    group_by_userid = userdf.groupby(userdf.UserID) #grouping by userid
-    unique_users = list(set(UserID))
-    UserID =CategoryID =Rating = None
-    #--------end of fetching from user intrest cards table
-    #--------fetching places under each category of user'''
-    response = place_category_rating.scan()
+
     PlaceID=[]
     CategoryID=[]
-    PlaceName=[]
     Rating=[]
-    for place in response['Items']:
-        PlaceID.append(place['PlaceID'])
-        CategoryID.append(place['CategoryID'])
-        PlaceName.append(place['PlaceName'])
-        Rating.append(place['Rating'])
-    unique_placeid=list(set(PlaceID))
-    placedf = pd.DataFrame(list(zip(PlaceID,CategoryID,PlaceName,Rating)), columns =['PlaceID', 'CategoryID','PlaceName','Rating'])
-    group_by_placeid=placedf.groupby(placedf.PlaceID)
-    PlaceID=CategoryID =PlaceName =Rating = None
-    #----- end of fectching from place category table
-    print(placedf.head(10))
-    print(userdf.head(10))
-    #---------- grouping
+    try:
+        for place in response['Items']:
+            PlaceID.append(place['PlaceID'])
+            CategoryID.append(place['CategoryID'])
+            Rating.append(place['Rating'])
+            #raise CustomError("error-while-reading-place-table")
+    except Exception as e:
+        logger.error(e)
 
-    for user in unique_users:
-        di={}
-        for place in unique_placeid:
-            each_user = group_by_userid.get_group(user)
-            each_place=group_by_placeid.get_group(place)
-            merge_each_user_place=pd.merge(each_user,each_place,on='CategoryID')
-            merge_each_user_place['Score']=merge_each_user_place['Rating_x']*merge_each_user_place['Rating_y']
-            di[place]=sum(merge_each_user_place['Score'])
-        
-        sorted_di= sorted(di.items(), key=operator.itemgetter(1),reverse=True)
-        print(user)
-        print("---------")
-        for i in range(5):
-            print(placedf.loc[placedf['PlaceID']==sorted_di[i][0],'PlaceName'].iloc[0])
-        print("--------------------------------------------------")
-    
+    placedf = pd.DataFrame(list(zip(PlaceID, CategoryID, Rating)), columns= ['PlaceID', 'CategoryID', 'Rating'])
+    PlaceID= CategoryID = Rating = None
+    res=each_user_places_rec(user, placedf, user_table, recommender_table)
+    if res:
+        logger.info("successfully ran")
+    else:
+        logger.info("failed")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    return 1
 
