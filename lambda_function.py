@@ -4,7 +4,7 @@ import boto3
 import os
 import logging
 
-if os.environ['ENVIRONMENT'].upper() =="TEST":
+if os.environ['ENVIRONMENT'].upper() =="DEVELOPMENT":
     place_table = "localzi-place-rating"
     user_table = "localzi-user-interestcards"
     recommender_table ="localzi-places-recommended-test"
@@ -14,7 +14,6 @@ elif os.environ['ENVIRONMENT'].upper() =="PRODUCTION":
     user_table = "localzi-user-interestcards"
     recommender_table = "places-recommended"
     user = "u1"
-
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -38,7 +37,6 @@ def lambda_handler(event=None, context=None):
             PlaceID.append(place['PlaceID'])
             CategoryID.append(place['CategoryID'])
             Rating.append(place['Rating'])
-            #raise CustomError("error-while-reading-place-table")
     except Exception as e:
         logger.error(e)
 
@@ -46,9 +44,9 @@ def lambda_handler(event=None, context=None):
     PlaceID= CategoryID = Rating = None
     res=each_user_places_rec(user, placedf, user_table, recommender_table)
     if res:
-        logger.info("successfully ran")
+        logger.info("successfully ran for "+str(user))
     else:
-        logger.info("failed")
+        logger.info("failed for "+str(user))
 
 
 
