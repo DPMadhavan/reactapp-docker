@@ -7,13 +7,13 @@ import logging
 if os.environ['ENVIRONMENT'].upper() =="DEVELOPMENT":
     place_table = "localzi-place-rating-test"
     user_table = "localzi-user-interest-test"
-    recommender_table ="localzi-places-recommended-test"
+    recommender_table ="localzi-user-place-recommendation-test"
     user = os.environ['USERID']
     #for of now the userid is given manually later its dynamically assigned
 elif os.environ['ENVIRONMENT'].upper() =="PRODUCTION":
     place_table = "localzi-place-rating"
     user_table = "localzi-user-interestcards"
-    recommender_table = "places-recommended"
+    recommender_table = "localzi-user-place-recommendation"
     user = "u1"
 
 logger = logging.getLogger()

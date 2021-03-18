@@ -29,8 +29,8 @@ def results_into_dynamo(user,placedf,sorted_di,recommender_table):
         for i in range(5):
             tab.put_item(
                 Item={
-                    'UserID': user,
-                    'PlaceID': str(placedf.loc[placedf['PlaceID'] == sorted_di[i][0], 'PlaceID'].iloc[0])
+                    'userID': user,
+                    'placeID': str(placedf.loc[placedf['PlaceID'] == sorted_di[i][0], 'PlaceID'].iloc[0])
                 })
 
     except Exception as exp:
