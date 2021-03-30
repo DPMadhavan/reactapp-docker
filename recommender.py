@@ -18,7 +18,6 @@ def each_user_places_rec(user,placedf=None,user_table=None,recommender_table=Non
         di.append((place, sum(merge_each_user_place['Rating'])))
 
     di.sort(key=lambda x: x[1], reverse=True)
-    print("final destination:",di)
     res=results_into_dynamo(user, di,recommender_table)
     return 1
 
