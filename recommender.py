@@ -10,6 +10,8 @@ def each_user_places_rec(user,placedf=None,user_table=None,recommender_table=Non
     group_by_placeid = placedf.groupby(placedf.PlaceID)
     unique_placeid = list(set(placedf['PlaceID']))
     userdf=fetch_user_details(user, user_table)
+    if userdf==0:
+        return 0
     di = []
 
     for place in unique_placeid:
@@ -45,6 +47,8 @@ def fetch_user_details(user_id,user_table):
         response = table.query(KeyConditionExpression=Key('userID').eq(user_id))
     except Exception as exp:
         logger.error(exp)
+    if len(response['Items'])<=0:
+        return 0
     UserID=[]
     InterestID=[]
     try:

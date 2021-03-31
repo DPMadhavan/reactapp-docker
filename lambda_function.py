@@ -60,7 +60,7 @@ def lambda_handler(event=None, context=None):
     if res:
         logger.info("successfully ran for "+str(user))
     else:
-        logger.info("failed for "+str(user))
+        logger.info("failed for "+str(user)+" user does not exist")
 
 
 
