@@ -18,13 +18,14 @@ pipeline {
                 expression { BRANCH_NAME =='main'}
             }
             steps{
-                sh "mvn package"
-                 timeout(time:5, unit:'DAYS'){
-                     //input message:'Approve deployment?', submitter: 'localzi'
-                 }
-                sh "aws s3 cp target/localzi-document-upload-1.0.0.jar s3://localzi-documents-service"
-                sh '''aws lambda update-function-code --function-name blueprint-python-lambda --s3-bucket localzi-documents-service --s3-key localzi-document-download-1.0.0.jar --region ap-south-1'''
-            }
+                 	sh 'pip install --user -r requirements.txt'
+			sh "zip -r ../localzi-recommender-lambda.zip ."
+			sh "aws s3 cp ../localzi-recommender-lambda.zip s3://localzi-lambda-functions-prod"
+		        sh '''aws lambda update-function-code --function-name localzi-place-recommender \\
+		                                 --s3-bucket localzi-lambda-functions \\
+		                                 --s3-key localzi-recommender-lambda.zip \\
+		                                 --region ap-south-1'''
+                }
             post{
                 success{
                     echo "Successfully deployed to Production"
@@ -39,11 +40,14 @@ pipeline {
                         expression { BRANCH_NAME =='dev'}
                     }
                     steps{
-                        sh "mvn package"
-                        sh "aws s3 cp target/localzi-document-download-1.0.0.jar s3://localzi-documents-service-test"
-                        sh '''aws lambda update-function-code --function-name localzi-encrypt-document-download-lambda-test --s3-bucket localzi-documents-service-test --s3-key localzi-document-download-1.0.0.jar --region ap-south-1'''
-                        sh '''aws lambda update-function-code --function-name localzi-encrypt-document-preview-lambda-test --s3-bucket localzi-documents-service-test --s3-key localzi-document-download-1.0.0.jar --region ap-south-1'''
-                    }
+                            sh 'pip install --user -r requirements.txt'
+			    sh "zip -r ../localzi-recommender-lambda.zip ."
+			    sh "aws s3 cp ../localzi-recommender-lambda.zip s3://localzi-lambda-functions-test"
+		            sh '''aws lambda update-function-code --function-name localzi-place-recommender-test \\
+		                                       --s3-bucket localzi-lambda-functions-test \\
+		                                       --s3-key localzi-recommender-lambda.zip \\
+		                                       --region ap-south-1'''
+                        }
                     post{
                         success{
                             echo "Successfully deployed to Stagging"
