@@ -19,7 +19,7 @@ pipeline {
       steps{
         script {
 	 // dockerImage = docker.build(registry + ":front_end-$BUILD_NUMBER", "--build-arg BRANCH_NAME=$BRANCH_NAME .") 
-		pwd
+		pwd()
 		dockerImage = docker.build(registry + ":front_end-$BUILD_NUMBER") ./React App with docker practise/
         }
       }
