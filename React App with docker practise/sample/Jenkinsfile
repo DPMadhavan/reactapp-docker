@@ -23,7 +23,7 @@ pipeline {
 		//echo $loc
 		sh "pwd"
 		//dockerImage = docker.build(registry + ":front_end-$BUILD_NUMBER" -f "./React App with docker practise/sample/Dockerfile)
-		sh 'docker build -t docker-whale:tag ./React App with docker practise/sample/Dockerfile'
+		sh 'docker build -f /React App with docker practise/sample/Dockerfile /React App with docker practise/sample'
         }
       }
     }
